@@ -4,36 +4,47 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>Garcia's Seafood — Menu Guide</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --cream:        #fdf8f0;
-      --parchment:    #f0e8d8;
-      --navy:         #0d2140;
-      --ocean:        #1565a8;
-      --ocean-dark:   #0f4d82;
-      --gold:         #c8860a;
-      --text:         #1a1a2e;
-      --muted:        #7a8a9a;
-      --bubble-bot:   #ffffff;
-      --bubble-user:  #1565a8;
-      --shadow:       rgba(13, 33, 64, 0.14);
+      --cream:       #fdf8f0;
+      --parchment:   #f0e8d8;
+      --navy:        #0d2140;
+      --ocean:       #1565a8;
+      --ocean-dark:  #0f4d82;
+      --gold:        #c8860a;
+      --gold-dim:    #8a5c06;
+      --text:        #1a1a2e;
+      --muted:       #7a8a9a;
+      --border:      rgba(13, 33, 64, 0.13);
+      --shadow:      rgba(13, 33, 64, 0.10);
     }
 
     html, body {
       height: 100%;
       background: var(--cream);
       font-family: 'Poppins', sans-serif;
+      font-weight: 300;
       color: var(--text);
+    }
+
+    /* ── Layout ── */
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+      max-width: 760px;
+      margin: 0 auto;
     }
 
     /* ── Header ── */
     header {
-      position: sticky;
-      top: 0;
-      z-index: 10;
+      flex-shrink: 0;
+      position: relative;
       text-align: center;
       overflow: hidden;
     }
@@ -41,215 +52,243 @@
       background-image: url('https://garciasseafoodgrill.com/images/combination-seafood(1).png');
       background-size: cover;
       background-position: center 50%;
-      padding: 18px 20px 16px;
+      padding: 22px 24px 18px;
       position: relative;
     }
     .header-bg::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: rgba(10, 22, 48, 0.68);
+      background: linear-gradient(to bottom, rgba(8, 18, 40, 0.72) 0%, rgba(8, 18, 40, 0.80) 100%);
     }
     .header-content {
       position: relative;
       z-index: 1;
     }
     .header-logo {
-      height: 56px;
+      height: 54px;
       width: auto;
       display: block;
-      margin: 0 auto 6px;
+      margin: 0 auto 8px;
       filter: brightness(0) invert(1);
     }
     #header-fallback {
+      display: none;
       color: #fff;
-      font-family: 'Poppins', sans-serif;
-      font-weight: 600;
-      font-size: 1.2rem;
-      letter-spacing: 0.06em;
-      margin-bottom: 4px;
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 1.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
     }
-    header p {
-      font-family: 'Poppins', sans-serif;
-      font-size: 0.67rem;
-      letter-spacing: 0.2em;
+    .header-sub {
+      font-size: 0.65rem;
+      letter-spacing: 0.22em;
       color: var(--gold);
       text-transform: uppercase;
       font-weight: 300;
     }
-
-    /* ── Suggestion chips ── */
-    #chips {
-      background: var(--parchment);
-      padding: 10px 14px;
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      border-bottom: 1px solid rgba(13, 33, 64, 0.12);
-    }
-    #chips::-webkit-scrollbar { display: none; }
-    .chip {
-      flex-shrink: 0;
-      background: var(--cream);
-      border: 1px solid var(--gold);
-      color: var(--navy);
-      border-radius: 20px;
-      padding: 6px 14px;
-      font-size: 0.75rem;
-      cursor: pointer;
-      font-family: 'Poppins', sans-serif;
-      font-weight: 400;
-      white-space: nowrap;
-      transition: background 0.18s, color 0.18s;
-    }
-    .chip:hover, .chip:active {
-      background: var(--ocean);
-      color: #fff;
-      border-color: var(--ocean);
+    .header-rule {
+      width: 40px;
+      height: 1px;
+      background: var(--gold);
+      margin: 10px auto 0;
+      opacity: 0.5;
     }
 
     /* ── Chat area ── */
-    #chat {
+    .chat-area {
       flex: 1;
       overflow-y: auto;
-      padding: 18px 14px 24px;
+      padding: 24px 20px 28px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 16px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    .chat-area::-webkit-scrollbar { width: 4px; }
+    .chat-area::-webkit-scrollbar-thumb { background: var(--parchment); border-radius: 4px; }
+
+    /* ── Welcome ── */
+    .welcome {
+      text-align: center;
+      padding: 16px 8px 4px;
+    }
+    .welcome h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.35rem;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--ocean);
+      margin-bottom: 8px;
+    }
+    .welcome p {
+      font-size: 0.82rem;
+      color: var(--muted);
+      max-width: 400px;
+      margin: 0 auto;
+      line-height: 1.8;
+      font-weight: 300;
     }
 
+    /* ── Suggestion chips ── */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      padding: 4px 0 4px;
+    }
+    .chip {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 400;
+      letter-spacing: 0.3px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+    .chip:hover {
+      border-color: var(--gold-dim);
+      color: var(--gold);
+      background: rgba(200, 134, 10, 0.06);
+    }
+
+    /* ── Messages ── */
     .message {
       display: flex;
-      flex-direction: column;
-      max-width: 82%;
+      max-width: 86%;
+      animation: fadeUp 0.22s ease;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(5px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
     .message.bot  { align-self: flex-start; }
-    .message.user { align-self: flex-end; align-items: flex-end; }
+    .message.user { align-self: flex-end; }
 
     .bubble {
-      padding: 11px 15px;
-      border-radius: 18px;
-      font-size: 0.91rem;
-      line-height: 1.6;
-      box-shadow: 0 1px 4px var(--shadow);
-      font-family: 'Poppins', sans-serif;
-      font-weight: 400;
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 0.9rem;
+      line-height: 1.75;
+      font-weight: 300;
     }
     .message.bot .bubble {
-      background: var(--bubble-bot);
-      border-bottom-left-radius: 4px;
+      background: #fff;
       color: var(--text);
-      border: 1px solid rgba(13, 33, 64, 0.1);
+      border-left: 2px solid var(--gold);
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 1px 6px var(--shadow);
     }
     .message.user .bubble {
-      background: var(--bubble-user);
-      border-bottom-right-radius: 4px;
+      background: var(--ocean);
       color: #fff;
-    }
-
-    .label {
-      font-size: 0.62rem;
-      font-family: 'Poppins', sans-serif;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-bottom: 4px;
-      color: var(--muted);
+      border-bottom-right-radius: 4px;
+      font-weight: 400;
+      box-shadow: 0 1px 6px var(--shadow);
     }
 
     /* ── Typing indicator ── */
-    .typing-bubble {
-      display: flex;
-      align-items: center;
+    .typing-indicator {
+      align-self: flex-start;
+      display: none;
+      padding: 14px 18px;
+      background: #fff;
+      border-left: 2px solid var(--gold);
+      border-radius: 16px;
+      border-bottom-left-radius: 4px;
       gap: 5px;
-      padding: 13px 18px;
+      align-items: center;
+      box-shadow: 0 1px 6px var(--shadow);
     }
-    .dot {
-      width: 7px; height: 7px;
+    .typing-indicator.visible { display: flex; }
+    .typing-dot {
+      width: 6px; height: 6px;
       border-radius: 50%;
-      background: var(--muted);
-      animation: bounce 1.2s infinite ease-in-out;
+      background: var(--gold);
+      opacity: 0.4;
+      animation: pulse 1.2s infinite ease-in-out;
     }
-    .dot:nth-child(2) { animation-delay: 0.2s; }
-    .dot:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes bounce {
-      0%, 80%, 100% { transform: translateY(0); }
-      40%           { transform: translateY(-6px); }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes pulse {
+      0%, 80%, 100% { opacity: 0.4; transform: scale(1); }
+      40%           { opacity: 1;   transform: scale(1.15); }
     }
 
-    /* ── Input bar ── */
-    #input-area {
+    /* ── Input area ── */
+    .input-area {
+      flex-shrink: 0;
       background: var(--parchment);
-      border-top: 1px solid rgba(13, 33, 64, 0.15);
-      padding: 10px 14px;
-      display: flex;
-      gap: 8px;
-      align-items: flex-end;
+      border-top: 1px solid var(--border);
+      padding: 14px 18px;
     }
-    #user-input {
-      flex: 1;
-      border: 1px solid rgba(13, 33, 64, 0.22);
-      border-radius: 22px;
-      padding: 10px 16px;
-      font-size: 0.91rem;
-      font-family: 'Poppins', sans-serif;
+    .input-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
       background: #fff;
-      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .input-row:focus-within {
+      border-color: var(--ocean);
+      box-shadow: 0 0 0 3px rgba(21, 101, 168, 0.08);
+    }
+    textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
       outline: none;
+      color: var(--text);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 300;
+      line-height: 1.5;
       resize: none;
-      min-height: 42px;
       max-height: 120px;
       overflow-y: auto;
-      line-height: 1.4;
-      transition: border-color 0.18s;
+      scrollbar-width: none;
     }
-    #user-input:focus { border-color: var(--ocean); }
-    #user-input::placeholder { color: var(--muted); font-style: italic; }
+    textarea::placeholder { color: var(--muted); font-style: italic; }
+    textarea::-webkit-scrollbar { display: none; }
 
-    #send-btn {
-      width: 42px; height: 42px;
-      border-radius: 50%;
-      background: var(--ocean);
+    .send-btn {
+      background: none;
       border: none;
       cursor: pointer;
+      color: var(--gold-dim);
       display: flex;
       align-items: center;
-      justify-content: center;
+      padding: 4px;
+      transition: color 0.2s;
       flex-shrink: 0;
-      transition: background 0.18s;
     }
-    #send-btn:hover { background: var(--ocean-dark); }
-    #send-btn svg { fill: #fff; width: 18px; height: 18px; }
+    .send-btn:hover:not(:disabled) { color: var(--ocean); }
+    .send-btn:disabled { color: #ccc; cursor: not-allowed; }
+    .send-btn svg { width: 20px; height: 20px; }
 
-    /* ── Disclaimer ── */
-    #disclaimer {
+    .input-footer {
       text-align: center;
-      font-size: 0.66rem;
+      margin-top: 9px;
+      font-size: 0.65rem;
       color: var(--muted);
-      font-family: 'Poppins', sans-serif;
+      letter-spacing: 0.4px;
       font-weight: 300;
-      padding: 6px 14px 10px;
-      background: var(--parchment);
-      line-height: 1.4;
-    }
-
-    /* ── Layout wrapper ── */
-    #app {
-      display: flex;
-      flex-direction: column;
-      height: 100dvh;
-    }
-    #scroll-area {
-      flex: 1;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
     }
   </style>
 </head>
 <body>
-<div id="app">
+<div class="app">
   <header>
     <div class="header-bg">
       <div class="header-content">
@@ -259,159 +298,123 @@
           alt="Garcia's Seafood Grille & Fish Market"
           onerror="this.style.display='none'; document.getElementById('header-fallback').style.display='block';"
         />
-        <div id="header-fallback" style="display:none;">Garcia's Seafood</div>
-        <p>Menu Guide &nbsp;·&nbsp; Miami River, FL</p>
+        <div id="header-fallback">Garcia's Seafood</div>
+        <p class="header-sub">Freshest Catch Since 1966 &nbsp;·&nbsp; Miami River, FL</p>
+        <div class="header-rule"></div>
       </div>
     </div>
   </header>
 
-  <div id="chips">
-    <button class="chip" onclick="sendChip('Is the Lobster Bisque gluten-free?')">Bisque — Gluten-free?</button>
-    <button class="chip" onclick="sendChip('Does the Salmon contain dairy?')">Salmon — Dairy?</button>
-    <button class="chip" onclick="sendChip('Which dishes are fried in seed oil?')">Seed oils?</button>
-    <button class="chip" onclick="sendChip('Does the Lobster Bisque contain alcohol?')">Bisque — Alcohol?</button>
-    <button class="chip" onclick="sendChip('Which dishes are egg-free?')">Egg-free options?</button>
-    <button class="chip" onclick="sendChip('Which dishes contain shellfish?')">Shellfish?</button>
+  <div class="chat-area" id="chatArea">
+    <div class="welcome">
+      <h2>How can I help you tonight?</h2>
+      <p>Ask me about ingredients, allergens, or dietary needs for anything on our menu — I know this food inside and out.</p>
+    </div>
+
+    <div class="chips" id="chips">
+      <button class="chip" onclick="sendChip(this)">Is the Lobster Bisque gluten-free?</button>
+      <button class="chip" onclick="sendChip(this)">Does the Salmon contain dairy?</button>
+      <button class="chip" onclick="sendChip(this)">Which dishes use seed oil?</button>
+      <button class="chip" onclick="sendChip(this)">Does the Bisque have alcohol?</button>
+      <button class="chip" onclick="sendChip(this)">Which dishes contain shellfish?</button>
+      <button class="chip" onclick="sendChip(this)">Is the Fried Shrimp egg-free?</button>
+    </div>
+
+    <div class="typing-indicator" id="typingIndicator">
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+    </div>
   </div>
 
-  <div id="scroll-area">
-    <div id="chat"></div>
-  </div>
-
-  <div id="input-area">
-    <textarea id="user-input" rows="1" placeholder="Ask about ingredients, allergens, or dietary needs…" autocomplete="off"></textarea>
-    <button id="send-btn" aria-label="Send">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-      </svg>
-    </button>
-  </div>
-
-  <div id="disclaimer">
-    Always inform your server of severe allergies. This assistant is for guidance only.
+  <div class="input-area">
+    <div class="input-row">
+      <textarea id="userInput" rows="1" placeholder="Ask about ingredients or allergens…" autocomplete="off"></textarea>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()" aria-label="Send">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+    <p class="input-footer">For severe allergies, please also speak with your server.</p>
   </div>
 </div>
 
 <script>
-  const chat = document.getElementById('chat');
-  const input = document.getElementById('user-input');
-  const sendBtn = document.getElementById('send-btn');
+  const chatArea = document.getElementById('chatArea');
+  const userInput = document.getElementById('userInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const typingIndicator = document.getElementById('typingIndicator');
 
-  const history = [];
+  let messages = [];
+
+  userInput.addEventListener('input', () => {
+    userInput.style.height = 'auto';
+    userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
+  });
+
+  userInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  function sendChip(btn) {
+    userInput.value = btn.textContent;
+    sendMessage();
+  }
 
   function addMessage(role, text) {
     const wrapper = document.createElement('div');
     wrapper.className = `message ${role}`;
-
-    const label = document.createElement('div');
-    label.className = 'label';
-    label.textContent = role === 'bot' ? "Garcia's Seafood" : 'You';
-
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
     bubble.textContent = text;
-
-    wrapper.appendChild(label);
     wrapper.appendChild(bubble);
-    chat.appendChild(wrapper);
-    scrollToBottom();
-    return bubble;
+    chatArea.insertBefore(wrapper, typingIndicator);
+    chatArea.scrollTop = chatArea.scrollHeight;
   }
 
-  let typingEl = null;
-  function showTyping() {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'message bot';
-    wrapper.id = 'typing-wrapper';
+  async function sendMessage() {
+    const text = userInput.value.trim();
+    if (!text || sendBtn.disabled) return;
 
-    const label = document.createElement('div');
-    label.className = 'label';
-    label.textContent = "Garcia's Seafood";
+    userInput.value = '';
+    userInput.style.height = 'auto';
+    sendBtn.disabled = true;
 
-    const bubble = document.createElement('div');
-    bubble.className = 'bubble typing-bubble';
-    bubble.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
-
-    wrapper.appendChild(label);
-    wrapper.appendChild(bubble);
-    chat.appendChild(wrapper);
-    scrollToBottom();
-    typingEl = wrapper;
-  }
-  function hideTyping() {
-    if (typingEl) { typingEl.remove(); typingEl = null; }
-  }
-
-  function scrollToBottom() {
-    const area = document.getElementById('scroll-area');
-    area.scrollTop = area.scrollHeight;
-  }
-
-  addMessage('bot',
-    "Welcome to Garcia's Seafood! We've been serving the freshest catch on the Miami River since 1966. Here's what's on the menu tonight:\n\n" +
-    '• Lobster Bisque\n' +
-    '• Crispy Fried Shrimp\n' +
-    '• Pan-Seared Salmon with Lemon Butter Sauce\n\n' +
-    'Ask me anything about ingredients, allergens, or dietary needs — I know this food inside and out.'
-  );
-
-  async function sendMessage(text) {
-    text = text.trim();
-    if (!text) return;
+    // Hide chips after first message
+    const chips = document.getElementById('chips');
+    if (chips) chips.style.display = 'none';
 
     addMessage('user', text);
-    history.push({ role: 'user', content: text });
+    messages.push({ role: 'user', content: text });
 
-    input.value = '';
-    input.style.height = 'auto';
-    showTyping();
-    sendBtn.disabled = true;
+    typingIndicator.classList.add('visible');
+    chatArea.scrollTop = chatArea.scrollHeight;
 
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: history })
+        body: JSON.stringify({ messages }),
       });
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || `HTTP ${res.status}`);
-      }
-
       const data = await res.json();
-      const reply = data.reply;
-
-      hideTyping();
+      const reply = data.reply || 'I apologize, something went wrong. Please try again.';
+      messages.push({ role: 'assistant', content: reply });
       addMessage('bot', reply);
-      history.push({ role: 'assistant', content: reply });
-
-    } catch (err) {
-      hideTyping();
-      addMessage('bot', 'Sorry, something went wrong. Please try again or ask your server for help.');
-      console.error(err);
-      history.pop();
+    } catch {
+      addMessage('bot', 'I apologize — there seems to be a connection issue. Please try again in a moment.');
+      messages.pop();
     } finally {
+      typingIndicator.classList.remove('visible');
       sendBtn.disabled = false;
-      input.focus();
+      userInput.focus();
     }
   }
-
-  function sendChip(text) { sendMessage(text); }
-
-  sendBtn.addEventListener('click', () => sendMessage(input.value));
-
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage(input.value);
-    }
-  });
-
-  input.addEventListener('input', () => {
-    input.style.height = 'auto';
-    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
-  });
 </script>
 </body>
 </html>
