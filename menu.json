@@ -1,0 +1,58 @@
+{
+  "dishes": [
+    {
+      "id": "1",
+      "name": "Lobster Bisque",
+      "description": "A rich, creamy soup that's a staple at any upscale seafood restaurant",
+      "ingredients": "lobster tails, butter, shallots, garlic, tomato paste, dry sherry, seafood or chicken stock, heavy cream, smoked paprika, salt, black pepper",
+      "cookingFat": "butter — no seed oils",
+      "glutenFree": true,
+      "dairyFree": false,
+      "nutFree": true,
+      "vegetarian": false,
+      "containsEggs": false,
+      "containsShellfish": true,
+      "containsFish": false,
+      "containsAlcohol": true,
+      "alcoholNote": "dry sherry used in the base, simmered down but not fully cooked off",
+      "seedOil": false,
+      "notes": "Contains shellfish (lobster) and dairy (butter and heavy cream). Guests with shellfish or dairy allergies should avoid this dish. If you have a severe shellfish allergy, please notify your server before ordering."
+    },
+    {
+      "id": "2",
+      "name": "Crispy Fried Shrimp",
+      "description": "Golden fried shrimp with a tangy cocktail sauce — a seafood restaurant classic",
+      "ingredients": "large shrimp (peeled and deveined), all-purpose flour, eggs, panko breadcrumbs, Old Bay seasoning, vegetable oil for frying. Cocktail sauce: ketchup, horseradish, lemon juice, hot sauce",
+      "cookingFat": "vegetable oil (a seed oil) — this dish is fried in seed oil",
+      "glutenFree": false,
+      "dairyFree": true,
+      "nutFree": true,
+      "vegetarian": false,
+      "containsEggs": true,
+      "containsShellfish": true,
+      "containsFish": false,
+      "containsAlcohol": false,
+      "alcoholNote": "",
+      "seedOil": true,
+      "notes": "Contains shellfish (shrimp), gluten (flour and panko), and eggs (in the breading). Fried in vegetable oil — guests avoiding seed oils should not order this dish."
+    },
+    {
+      "id": "3",
+      "name": "Pan-Seared Salmon with Lemon Butter Sauce",
+      "description": "Fresh salmon fillets seared skin-on with a bright, herby lemon butter sauce",
+      "ingredients": "salmon fillets (skin-on), olive oil, butter, garlic, fresh lemon juice, lemon zest, fresh dill or parsley, salt, black pepper, capers (optional)",
+      "cookingFat": "olive oil and butter — no seed oils",
+      "glutenFree": true,
+      "dairyFree": false,
+      "nutFree": true,
+      "vegetarian": false,
+      "containsEggs": false,
+      "containsShellfish": false,
+      "containsFish": true,
+      "containsAlcohol": false,
+      "alcoholNote": "",
+      "seedOil": false,
+      "notes": "Contains fish (salmon) and dairy (butter in the sauce). Gluten-free and shellfish-free. Capers are optional — guests can ask to have them left off."
+    }
+  ]
+}

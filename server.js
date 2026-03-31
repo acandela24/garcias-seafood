@@ -2,7 +2,8 @@ import Anthropic from '@anthropic-ai/sdk';
 import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { dirname, join } from 'path';
+import { readFileSync, writeFileSync } from 'fs';
 import 'dotenv/config';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -11,11 +12,45 @@ const __dirname = dirname(__filename);
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.static(__dirname));
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const MENU_PATH = join(__dirname, 'menu.json');
 
-const SYSTEM_PROMPT = `You are the menu guide at Garcia's Seafood Grille & Fish Market, a family-owned waterfront restaurant on the Miami River that's been serving the freshest seafood since 1966. Your job is to help guests understand exactly what's in their food — ingredients, allergens, cooking oils, and dietary info — so they can eat with confidence.
+// ── Menu helpers ──────────────────────────────────────────────
+
+function loadMenu() {
+  try {
+    return JSON.parse(readFileSync(MENU_PATH, 'utf8'));
+  } catch {
+    return { dishes: [] };
+  }
+}
+
+function saveMenu(menu) {
+  writeFileSync(MENU_PATH, JSON.stringify(menu, null, 2), 'utf8');
+}
+
+function buildSystemPrompt(dishes) {
+  const dishText = dishes.map(d => {
+    const flags = [];
+    if (d.glutenFree)        flags.push('gluten-free');
+    if (d.dairyFree)         flags.push('dairy-free');
+    if (d.nutFree)           flags.push('nut-free');
+    if (d.vegetarian)        flags.push('vegetarian');
+    if (d.containsEggs)      flags.push('contains eggs');
+    if (d.containsShellfish) flags.push('contains shellfish');
+    if (d.containsFish)      flags.push('contains fish');
+    if (d.containsAlcohol)   flags.push(`contains alcohol (${d.alcoholNote || 'see notes'})`);
+    if (d.seedOil)           flags.push('fried/cooked in seed oil (vegetable oil)');
+
+    return `${d.name.toUpperCase()}
+${d.description ? d.description + '. ' : ''}Ingredients: ${d.ingredients}.
+Cooking fat/oil: ${d.cookingFat}.
+Dietary flags: ${flags.join(', ') || 'none noted'}.
+${d.notes ? 'Notes: ' + d.notes : ''}`.trim();
+  }).join('\n\n');
+
+  return `You are the menu guide at Garcia's Seafood Grille & Fish Market, a family-owned waterfront restaurant on the Miami River that's been serving the freshest seafood since 1966. Your job is to help guests understand exactly what's in their food — ingredients, allergens, cooking oils, and dietary info — so they can eat with confidence.
 
 Be warm, direct, and unpretentious. Talk like someone who genuinely knows this food and cares about the guest getting it right. No filler, no corporate language, no sign-offs. Plain natural sentences only — never use bullet points, dashes, or numbered lists. For a simple question, one or two sentences is plenty. For something more involved, cover it fully but stay tight.
 
@@ -25,20 +60,78 @@ Never guess. If you're not sure, say so and point them to the kitchen.
 
 Here is everything you know about our current menu:
 
-LOBSTER BISQUE
-A rich, creamy soup made with real lobster. Ingredients: lobster tails, butter, shallots, garlic, tomato paste, dry sherry, seafood or chicken stock, heavy cream, smoked paprika, salt, black pepper.
-Cooking fat: butter. No seed oils.
-Allergen information: Contains shellfish (lobster) and dairy (butter and heavy cream). Contains alcohol — dry sherry is used in the base and simmered down, but it is not fully cooked off. No gluten, no eggs, no nuts, no soy. This dish is gluten-free. Not dairy-free. Not shellfish-free. Guests with shellfish or dairy allergies should avoid this dish. If you have a severe shellfish allergy, please notify your server before ordering.
+${dishText || 'No dishes are currently on the menu. Please check back soon.'}`;
+}
 
-CRISPY FRIED SHRIMP
-Golden fried shrimp served with house cocktail sauce. Ingredients: large shrimp (peeled and deveined), all-purpose flour, eggs, panko breadcrumbs, Old Bay seasoning, vegetable oil for frying. Cocktail sauce: ketchup, horseradish, lemon juice, hot sauce.
-Cooking oil: vegetable oil (a seed oil) is used for frying. This is not olive oil.
-Allergen information: Contains shellfish (shrimp), gluten (all-purpose flour and panko breadcrumbs), and eggs (used in the breading). Fried in vegetable oil — guests avoiding seed oils should not order this dish. No dairy, no nuts, no alcohol, no soy. Not gluten-free. Not egg-free. Not shellfish-free. Dairy-free. The cocktail sauce contains ketchup and horseradish — guests with sensitivities should ask their server about specific brands used.
+// ── Admin auth middleware ─────────────────────────────────────
 
-PAN-SEARED SALMON WITH LEMON BUTTER SAUCE
-Fresh salmon fillets seared skin-on and finished with a bright lemon butter sauce. Ingredients: salmon fillets (skin-on), olive oil, butter, garlic, fresh lemon juice, lemon zest, fresh dill or parsley, salt, black pepper, capers (optional).
-Cooking fat: olive oil and butter. No seed oils.
-Allergen information: Contains fish (salmon) and dairy (butter in the sauce). No gluten, no shellfish, no eggs, no nuts, no alcohol, no soy. This dish is gluten-free and shellfish-free. Not dairy-free (butter is integral to the sauce). Capers are optional — guests can ask to have them left off. If you have a fish allergy, please speak directly with your server.`;
+function requireAdmin(req, res, next) {
+  const password = req.headers['x-admin-password'];
+  if (!process.env.ADMIN_PASSWORD || password !== process.env.ADMIN_PASSWORD) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  next();
+}
+
+// ── Static files ──────────────────────────────────────────────
+
+app.get('/admin', (req, res) => {
+  res.sendFile(join(__dirname, 'admin.html'));
+});
+
+// Serve index.html and other static files, but not menu.json
+app.use(express.static(__dirname, { index: 'index.html' }));
+
+// ── Menu API ──────────────────────────────────────────────────
+
+app.get('/api/menu', (req, res) => {
+  res.json(loadMenu());
+});
+
+app.post('/api/menu/dish', requireAdmin, (req, res) => {
+  const menu = loadMenu();
+  const dish = {
+    id: Date.now().toString(),
+    name: req.body.name || '',
+    description: req.body.description || '',
+    ingredients: req.body.ingredients || '',
+    cookingFat: req.body.cookingFat || '',
+    glutenFree: !!req.body.glutenFree,
+    dairyFree: !!req.body.dairyFree,
+    nutFree: !!req.body.nutFree,
+    vegetarian: !!req.body.vegetarian,
+    containsEggs: !!req.body.containsEggs,
+    containsShellfish: !!req.body.containsShellfish,
+    containsFish: !!req.body.containsFish,
+    containsAlcohol: !!req.body.containsAlcohol,
+    alcoholNote: req.body.alcoholNote || '',
+    seedOil: !!req.body.seedOil,
+    notes: req.body.notes || '',
+  };
+  menu.dishes.push(dish);
+  saveMenu(menu);
+  res.json({ ok: true, dish });
+});
+
+app.put('/api/menu/dish/:id', requireAdmin, (req, res) => {
+  const menu = loadMenu();
+  const idx = menu.dishes.findIndex(d => d.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Dish not found' });
+  menu.dishes[idx] = { ...menu.dishes[idx], ...req.body, id: req.params.id };
+  saveMenu(menu);
+  res.json({ ok: true, dish: menu.dishes[idx] });
+});
+
+app.delete('/api/menu/dish/:id', requireAdmin, (req, res) => {
+  const menu = loadMenu();
+  const idx = menu.dishes.findIndex(d => d.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Dish not found' });
+  menu.dishes.splice(idx, 1);
+  saveMenu(menu);
+  res.json({ ok: true });
+});
+
+// ── Chat API ──────────────────────────────────────────────────
 
 app.post('/api/chat', async (req, res) => {
   const { messages } = req.body;
@@ -48,10 +141,13 @@ app.post('/api/chat', async (req, res) => {
   }
 
   try {
+    const { dishes } = loadMenu();
+    const systemPrompt = buildSystemPrompt(dishes);
+
     const response = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 512,
-      system: SYSTEM_PROMPT,
+      system: systemPrompt,
       messages,
     });
 
@@ -62,6 +158,8 @@ app.post('/api/chat', async (req, res) => {
     res.status(502).json({ error: 'Unable to reach the AI service. Please try again.' });
   }
 });
+
+// ── Start ─────────────────────────────────────────────────────
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Garcia's Seafood chatbot running on http://localhost:${PORT}`));

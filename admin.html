@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Garcia's Seafood — Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:   #0d2140;
+      --ocean:  #1565a8;
+      --gold:   #c8860a;
+      --cream:  #fdf8f0;
+      --parch:  #f0e8d8;
+      --border: #ddd3c0;
+      --muted:  #7a8a9a;
+      --red:    #c0392b;
+      --green:  #1a7a3a;
+      --text:   #1a1a2e;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 300;
+      background: var(--cream);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--navy);
+      color: #fff;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header h1 {
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+    header span {
+      font-size: 0.72rem;
+      color: var(--gold);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    /* ── Login overlay ── */
+    #login-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(13, 33, 64, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .login-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 36px 32px;
+      width: 320px;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(13,33,64,0.2);
+    }
+    .login-box h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+    .login-box p {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .login-box input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      margin-bottom: 12px;
+      transition: border-color 0.2s;
+    }
+    .login-box input:focus { border-color: var(--ocean); }
+    #login-error {
+      color: var(--red);
+      font-size: 0.75rem;
+      margin-bottom: 8px;
+      display: none;
+    }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 28px 20px;
+    }
+
+    /* ── Section titles ── */
+    .section-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Dish cards ── */
+    #dish-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 36px;
+    }
+    .dish-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .dish-card-info h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 3px;
+    }
+    .dish-card-info p {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .dish-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 8px;
+    }
+    .tag {
+      font-size: 0.65rem;
+      font-weight: 400;
+      padding: 2px 9px;
+      border-radius: 12px;
+      background: var(--parch);
+      color: var(--navy);
+      border: 1px solid var(--border);
+    }
+    .tag.alert { background: #fdecea; color: var(--red); border-color: #f5c6c3; }
+    .tag.good  { background: #e8f5ee; color: var(--green); border-color: #b8dfc8; }
+    .dish-actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 400;
+      padding: 7px 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.18s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: var(--ocean); color: #fff; }
+    .btn-gold    { background: var(--gold);  color: #fff; }
+    .btn-danger  { background: var(--red);   color: #fff; font-size: 0.72rem; padding: 6px 12px; }
+    .btn-edit    { background: var(--parch); color: var(--navy); border: 1px solid var(--border); font-size: 0.72rem; padding: 6px 12px; }
+    .btn-full    { width: 100%; }
+    .btn-sm      { padding: 5px 12px; font-size: 0.72rem; }
+
+    /* ── Form ── */
+    .form-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px 22px;
+    }
+    .form-card h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 18px;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .form-full { grid-column: 1 / -1; }
+    label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 300;
+      color: var(--text);
+      background: var(--cream);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus, textarea:focus { border-color: var(--ocean); background: #fff; }
+    textarea { resize: vertical; min-height: 72px; }
+
+    /* ── Checkboxes ── */
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 400;
+      color: var(--text);
+    }
+    .checkbox-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--ocean);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    /* ── Alcohol note (conditional) ── */
+    #alcohol-note-row { display: none; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 400;
+      color: #fff;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 200;
+    }
+    #toast.show { opacity: 1; }
+    #toast.success { background: var(--green); }
+    #toast.error   { background: var(--red); }
+
+    /* ── Empty state ── */
+    .empty {
+      text-align: center;
+      padding: 32px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      background: #fff;
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .form-full { grid-column: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Login overlay -->
+<div id="login-overlay">
+  <div class="login-box">
+    <h2>Garcia's Seafood</h2>
+    <p>Admin access only. Enter your password to continue.</p>
+    <input type="password" id="password-input" placeholder="Admin password" />
+    <div id="login-error">Incorrect password. Please try again.</div>
+    <button class="btn btn-primary btn-full" onclick="login()">Sign In</button>
+  </div>
+</div>
+
+<header>
+  <h1>Garcia's Seafood — Menu Admin</h1>
+  <span>Staff Only</span>
+</header>
+
+<div class="container">
+
+  <!-- Current dishes -->
+  <p class="section-title">Current Menu</p>
+  <div id="dish-list"></div>
+
+  <!-- Add / Edit form -->
+  <p class="section-title" id="form-title">Add New Dish</p>
+  <div class="form-card">
+    <input type="hidden" id="edit-id" />
+    <div class="form-grid">
+      <div>
+        <label>Dish Name *</label>
+        <input type="text" id="f-name" placeholder="e.g. Lobster Bisque" />
+      </div>
+      <div>
+        <label>Short Description</label>
+        <input type="text" id="f-description" placeholder="One-line description" />
+      </div>
+      <div class="form-full">
+        <label>Ingredients *</label>
+        <textarea id="f-ingredients" placeholder="List all ingredients, comma-separated"></textarea>
+      </div>
+      <div class="form-full">
+        <label>Cooking Fat / Oil Used</label>
+        <input type="text" id="f-cookingFat" placeholder="e.g. olive oil only — no seed oils" />
+      </div>
+      <div class="form-full">
+        <label>Allergen &amp; Dietary Flags</label>
+        <div class="checkbox-grid">
+          <label class="checkbox-item"><input type="checkbox" id="f-glutenFree" /> Gluten-free</label>
+          <label class="checkbox-item"><input type="checkbox" id="f-dairyFree" /> Dairy-free</label>
+          <label class="checkbox-item"><input type="checkbox" id="f-nutFree" /> Nut-free</label>
+          <label class="checkbox-item"><input type="checkbox" id="f-vegetarian" /> Vegetarian</label>
+          <label class="checkbox-item"><input type="checkbox" id="f-containsEggs" /> Contains Eggs</label>
+          <label class="checkbox-item"><input type="checkbox" id="f-containsShellfish" /> Contains Shellfish</label>
+          <label class="checkbox-item"><input type="checkbox" id="f-containsFish" /> Contains Fish</label>
+          <label class="checkbox-item"><input type="checkbox" id="f-seedOil" /> Fried in Seed Oil</label>
+          <label class="checkbox-item"><input type="checkbox" id="f-containsAlcohol" onchange="toggleAlcohol()" /> Contains Alcohol</label>
+        </div>
+      </div>
+      <div class="form-full" id="alcohol-note-row">
+        <label>Alcohol Details</label>
+        <input type="text" id="f-alcoholNote" placeholder="e.g. dry sherry used in the sauce" />
+      </div>
+      <div class="form-full">
+        <label>Additional Notes (shown to chatbot)</label>
+        <textarea id="f-notes" placeholder="Any extra allergen context, preparation notes, or caveats for guests"></textarea>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:18px;">
+      <button class="btn btn-gold" onclick="saveDish()">Save Dish</button>
+      <button class="btn btn-edit" onclick="resetForm()" id="cancel-btn" style="display:none;">Cancel Edit</button>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+  let adminPassword = '';
+
+  // ── Login ────────────────────────────────────────────────────
+  document.getElementById('password-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') login();
+  });
+
+  async function login() {
+    const pw = document.getElementById('password-input').value.trim();
+    if (!pw) return;
+
+    // Test the password against the API
+    const res = await fetch('/api/menu/dish/__test__', {
+      method: 'DELETE',
+      headers: { 'x-admin-password': pw }
+    });
+
+    if (res.status === 401) {
+      document.getElementById('login-error').style.display = 'block';
+      return;
+    }
+
+    adminPassword = pw;
+    document.getElementById('login-overlay').style.display = 'none';
+    loadDishes();
+  }
+
+  // ── Toast ────────────────────────────────────────────────────
+  function toast(msg, type = 'success') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = `show ${type}`;
+    setTimeout(() => { el.className = ''; }, 3000);
+  }
+
+  // ── Load dishes ──────────────────────────────────────────────
+  async function loadDishes() {
+    const res = await fetch('/api/menu');
+    const { dishes } = await res.json();
+    renderDishes(dishes);
+  }
+
+  function renderDishes(dishes) {
+    const list = document.getElementById('dish-list');
+    if (!dishes.length) {
+      list.innerHTML = '<div class="empty">No dishes yet. Add your first dish below.</div>';
+      return;
+    }
+    list.innerHTML = dishes.map(d => `
+      <div class="dish-card">
+        <div class="dish-card-info">
+          <h3>${d.name}</h3>
+          <p>${d.description || ''}</p>
+          <div class="dish-tags">
+            ${d.glutenFree        ? '<span class="tag good">Gluten-free</span>' : '<span class="tag alert">Contains Gluten</span>'}
+            ${d.dairyFree         ? '<span class="tag good">Dairy-free</span>'  : '<span class="tag alert">Contains Dairy</span>'}
+            ${d.containsShellfish ? '<span class="tag alert">Shellfish</span>'  : ''}
+            ${d.containsFish      ? '<span class="tag alert">Fish</span>'       : ''}
+            ${d.containsEggs      ? '<span class="tag alert">Eggs</span>'       : ''}
+            ${d.containsAlcohol   ? '<span class="tag alert">Alcohol</span>'    : ''}
+            ${d.seedOil           ? '<span class="tag alert">Seed Oil</span>'   : ''}
+            ${d.nutFree           ? '<span class="tag good">Nut-free</span>'    : ''}
+            ${d.vegetarian        ? '<span class="tag good">Vegetarian</span>'  : ''}
+          </div>
+        </div>
+        <div class="dish-actions">
+          <button class="btn btn-edit" onclick='editDish(${JSON.stringify(d).replace(/'/g, "&#39;")})'>Edit</button>
+          <button class="btn btn-danger" onclick="deleteDish('${d.id}', '${d.name.replace(/'/g, "\\'")}')">Delete</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ── Save dish ────────────────────────────────────────────────
+  async function saveDish() {
+    const id = document.getElementById('edit-id').value;
+    const body = {
+      name:             document.getElementById('f-name').value.trim(),
+      description:      document.getElementById('f-description').value.trim(),
+      ingredients:      document.getElementById('f-ingredients').value.trim(),
+      cookingFat:       document.getElementById('f-cookingFat').value.trim(),
+      glutenFree:       document.getElementById('f-glutenFree').checked,
+      dairyFree:        document.getElementById('f-dairyFree').checked,
+      nutFree:          document.getElementById('f-nutFree').checked,
+      vegetarian:       document.getElementById('f-vegetarian').checked,
+      containsEggs:     document.getElementById('f-containsEggs').checked,
+      containsShellfish:document.getElementById('f-containsShellfish').checked,
+      containsFish:     document.getElementById('f-containsFish').checked,
+      containsAlcohol:  document.getElementById('f-containsAlcohol').checked,
+      alcoholNote:      document.getElementById('f-alcoholNote').value.trim(),
+      seedOil:          document.getElementById('f-seedOil').checked,
+      notes:            document.getElementById('f-notes').value.trim(),
+    };
+
+    if (!body.name) { toast('Dish name is required.', 'error'); return; }
+    if (!body.ingredients) { toast('Ingredients are required.', 'error'); return; }
+
+    const url    = id ? `/api/menu/dish/${id}` : '/api/menu/dish';
+    const method = id ? 'PUT' : 'POST';
+
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json', 'x-admin-password': adminPassword },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) { toast('Failed to save. Please try again.', 'error'); return; }
+
+    toast(id ? 'Dish updated!' : 'Dish added!');
+    resetForm();
+    loadDishes();
+  }
+
+  // ── Edit dish ────────────────────────────────────────────────
+  function editDish(d) {
+    document.getElementById('edit-id').value          = d.id;
+    document.getElementById('f-name').value           = d.name;
+    document.getElementById('f-description').value    = d.description;
+    document.getElementById('f-ingredients').value    = d.ingredients;
+    document.getElementById('f-cookingFat').value     = d.cookingFat;
+    document.getElementById('f-glutenFree').checked   = d.glutenFree;
+    document.getElementById('f-dairyFree').checked    = d.dairyFree;
+    document.getElementById('f-nutFree').checked      = d.nutFree;
+    document.getElementById('f-vegetarian').checked   = d.vegetarian;
+    document.getElementById('f-containsEggs').checked = d.containsEggs;
+    document.getElementById('f-containsShellfish').checked = d.containsShellfish;
+    document.getElementById('f-containsFish').checked = d.containsFish;
+    document.getElementById('f-containsAlcohol').checked = d.containsAlcohol;
+    document.getElementById('f-alcoholNote').value    = d.alcoholNote;
+    document.getElementById('f-seedOil').checked      = d.seedOil;
+    document.getElementById('f-notes').value          = d.notes;
+    toggleAlcohol();
+
+    document.getElementById('form-title').textContent = 'Edit Dish';
+    document.getElementById('cancel-btn').style.display = 'inline-block';
+    document.getElementById('f-name').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // ── Delete dish ──────────────────────────────────────────────
+  async function deleteDish(id, name) {
+    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+
+    const res = await fetch(`/api/menu/dish/${id}`, {
+      method: 'DELETE',
+      headers: { 'x-admin-password': adminPassword },
+    });
+
+    if (!res.ok) { toast('Failed to delete.', 'error'); return; }
+    toast(`"${name}" deleted.`);
+    loadDishes();
+  }
+
+  // ── Reset form ───────────────────────────────────────────────
+  function resetForm() {
+    ['edit-id','f-name','f-description','f-ingredients','f-cookingFat','f-alcoholNote','f-notes']
+      .forEach(id => document.getElementById(id).value = '');
+    ['f-glutenFree','f-dairyFree','f-nutFree','f-vegetarian','f-containsEggs',
+     'f-containsShellfish','f-containsFish','f-containsAlcohol','f-seedOil']
+      .forEach(id => document.getElementById(id).checked = false);
+    document.getElementById('alcohol-note-row').style.display = 'none';
+    document.getElementById('form-title').textContent = 'Add New Dish';
+    document.getElementById('cancel-btn').style.display = 'none';
+  }
+
+  function toggleAlcohol() {
+    document.getElementById('alcohol-note-row').style.display =
+      document.getElementById('f-containsAlcohol').checked ? 'block' : 'none';
+  }
+</script>
+</body>
+</html>
