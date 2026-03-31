@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Garcia's Seafood — Menu Guide</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:        #fdf8f0;
+      --parchment:    #f0e8d8;
+      --navy:         #0d2140;
+      --ocean:        #1565a8;
+      --ocean-dark:   #0f4d82;
+      --gold:         #c8860a;
+      --text:         #1a1a2e;
+      --muted:        #7a8a9a;
+      --bubble-bot:   #ffffff;
+      --bubble-user:  #1565a8;
+      --shadow:       rgba(13, 33, 64, 0.14);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--cream);
+      font-family: 'Poppins', sans-serif;
+      color: var(--text);
+    }
+
+    /* ── Header ── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      text-align: center;
+      overflow: hidden;
+    }
+    .header-bg {
+      background-image: url('https://garciasseafoodgrill.com/images/combination-seafood(1).png');
+      background-size: cover;
+      background-position: center 50%;
+      padding: 18px 20px 16px;
+      position: relative;
+    }
+    .header-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 22, 48, 0.68);
+    }
+    .header-content {
+      position: relative;
+      z-index: 1;
+    }
+    .header-logo {
+      height: 56px;
+      width: auto;
+      display: block;
+      margin: 0 auto 6px;
+      filter: brightness(0) invert(1);
+    }
+    #header-fallback {
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 1.2rem;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+    header p {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.67rem;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+      text-transform: uppercase;
+      font-weight: 300;
+    }
+
+    /* ── Suggestion chips ── */
+    #chips {
+      background: var(--parchment);
+      padding: 10px 14px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      border-bottom: 1px solid rgba(13, 33, 64, 0.12);
+    }
+    #chips::-webkit-scrollbar { display: none; }
+    .chip {
+      flex-shrink: 0;
+      background: var(--cream);
+      border: 1px solid var(--gold);
+      color: var(--navy);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 400;
+      white-space: nowrap;
+      transition: background 0.18s, color 0.18s;
+    }
+    .chip:hover, .chip:active {
+      background: var(--ocean);
+      color: #fff;
+      border-color: var(--ocean);
+    }
+
+    /* ── Chat area ── */
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 14px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .message {
+      display: flex;
+      flex-direction: column;
+      max-width: 82%;
+    }
+    .message.bot  { align-self: flex-start; }
+    .message.user { align-self: flex-end; align-items: flex-end; }
+
+    .bubble {
+      padding: 11px 15px;
+      border-radius: 18px;
+      font-size: 0.91rem;
+      line-height: 1.6;
+      box-shadow: 0 1px 4px var(--shadow);
+      font-family: 'Poppins', sans-serif;
+      font-weight: 400;
+    }
+    .message.bot .bubble {
+      background: var(--bubble-bot);
+      border-bottom-left-radius: 4px;
+      color: var(--text);
+      border: 1px solid rgba(13, 33, 64, 0.1);
+    }
+    .message.user .bubble {
+      background: var(--bubble-user);
+      border-bottom-right-radius: 4px;
+      color: #fff;
+    }
+
+    .label {
+      font-size: 0.62rem;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      color: var(--muted);
+    }
+
+    /* ── Typing indicator ── */
+    .typing-bubble {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 13px 18px;
+    }
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--muted);
+      animation: bounce 1.2s infinite ease-in-out;
+    }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); }
+      40%           { transform: translateY(-6px); }
+    }
+
+    /* ── Input bar ── */
+    #input-area {
+      background: var(--parchment);
+      border-top: 1px solid rgba(13, 33, 64, 0.15);
+      padding: 10px 14px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+    #user-input {
+      flex: 1;
+      border: 1px solid rgba(13, 33, 64, 0.22);
+      border-radius: 22px;
+      padding: 10px 16px;
+      font-size: 0.91rem;
+      font-family: 'Poppins', sans-serif;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      resize: none;
+      min-height: 42px;
+      max-height: 120px;
+      overflow-y: auto;
+      line-height: 1.4;
+      transition: border-color 0.18s;
+    }
+    #user-input:focus { border-color: var(--ocean); }
+    #user-input::placeholder { color: var(--muted); font-style: italic; }
+
+    #send-btn {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: var(--ocean);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.18s;
+    }
+    #send-btn:hover { background: var(--ocean-dark); }
+    #send-btn svg { fill: #fff; width: 18px; height: 18px; }
+
+    /* ── Disclaimer ── */
+    #disclaimer {
+      text-align: center;
+      font-size: 0.66rem;
+      color: var(--muted);
+      font-family: 'Poppins', sans-serif;
+      font-weight: 300;
+      padding: 6px 14px 10px;
+      background: var(--parchment);
+      line-height: 1.4;
+    }
+
+    /* ── Layout wrapper ── */
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+    }
+    #scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="header-bg">
+      <div class="header-content">
+        <img
+          class="header-logo"
+          src="https://garciasseafoodgrill.com/images/garciasseafoodgrilllogo1.png"
+          alt="Garcia's Seafood Grille & Fish Market"
+          onerror="this.style.display='none'; document.getElementById('header-fallback').style.display='block';"
+        />
+        <div id="header-fallback" style="display:none;">Garcia's Seafood</div>
+        <p>Menu Guide &nbsp;·&nbsp; Miami River, FL</p>
+      </div>
+    </div>
+  </header>
+
+  <div id="chips">
+    <button class="chip" onclick="sendChip('Is the Lobster Bisque gluten-free?')">Bisque — Gluten-free?</button>
+    <button class="chip" onclick="sendChip('Does the Salmon contain dairy?')">Salmon — Dairy?</button>
+    <button class="chip" onclick="sendChip('Which dishes are fried in seed oil?')">Seed oils?</button>
+    <button class="chip" onclick="sendChip('Does the Lobster Bisque contain alcohol?')">Bisque — Alcohol?</button>
+    <button class="chip" onclick="sendChip('Which dishes are egg-free?')">Egg-free options?</button>
+    <button class="chip" onclick="sendChip('Which dishes contain shellfish?')">Shellfish?</button>
+  </div>
+
+  <div id="scroll-area">
+    <div id="chat"></div>
+  </div>
+
+  <div id="input-area">
+    <textarea id="user-input" rows="1" placeholder="Ask about ingredients, allergens, or dietary needs…" autocomplete="off"></textarea>
+    <button id="send-btn" aria-label="Send">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="disclaimer">
+    Always inform your server of severe allergies. This assistant is for guidance only.
+  </div>
+</div>
+
+<script>
+  const chat = document.getElementById('chat');
+  const input = document.getElementById('user-input');
+  const sendBtn = document.getElementById('send-btn');
+
+  const history = [];
+
+  function addMessage(role, text) {
+    const wrapper = document.createElement('div');
+    wrapper.className = `message ${role}`;
+
+    const label = document.createElement('div');
+    label.className = 'label';
+    label.textContent = role === 'bot' ? "Garcia's Seafood" : 'You';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.textContent = text;
+
+    wrapper.appendChild(label);
+    wrapper.appendChild(bubble);
+    chat.appendChild(wrapper);
+    scrollToBottom();
+    return bubble;
+  }
+
+  let typingEl = null;
+  function showTyping() {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'message bot';
+    wrapper.id = 'typing-wrapper';
+
+    const label = document.createElement('div');
+    label.className = 'label';
+    label.textContent = "Garcia's Seafood";
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble typing-bubble';
+    bubble.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+
+    wrapper.appendChild(label);
+    wrapper.appendChild(bubble);
+    chat.appendChild(wrapper);
+    scrollToBottom();
+    typingEl = wrapper;
+  }
+  function hideTyping() {
+    if (typingEl) { typingEl.remove(); typingEl = null; }
+  }
+
+  function scrollToBottom() {
+    const area = document.getElementById('scroll-area');
+    area.scrollTop = area.scrollHeight;
+  }
+
+  addMessage('bot',
+    "Welcome to Garcia's Seafood! We've been serving the freshest catch on the Miami River since 1966. Here's what's on the menu tonight:\n\n" +
+    '• Lobster Bisque\n' +
+    '• Crispy Fried Shrimp\n' +
+    '• Pan-Seared Salmon with Lemon Butter Sauce\n\n' +
+    'Ask me anything about ingredients, allergens, or dietary needs — I know this food inside and out.'
+  );
+
+  async function sendMessage(text) {
+    text = text.trim();
+    if (!text) return;
+
+    addMessage('user', text);
+    history.push({ role: 'user', content: text });
+
+    input.value = '';
+    input.style.height = 'auto';
+    showTyping();
+    sendBtn.disabled = true;
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: history })
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+      const reply = data.reply;
+
+      hideTyping();
+      addMessage('bot', reply);
+      history.push({ role: 'assistant', content: reply });
+
+    } catch (err) {
+      hideTyping();
+      addMessage('bot', 'Sorry, something went wrong. Please try again or ask your server for help.');
+      console.error(err);
+      history.pop();
+    } finally {
+      sendBtn.disabled = false;
+      input.focus();
+    }
+  }
+
+  function sendChip(text) { sendMessage(text); }
+
+  sendBtn.addEventListener('click', () => sendMessage(input.value));
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage(input.value);
+    }
+  });
+
+  input.addEventListener('input', () => {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+  });
+</script>
+</body>
+</html>
